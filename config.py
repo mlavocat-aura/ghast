@@ -5,11 +5,24 @@ try:
 except KeyError:
     print('Did you forget to export GITHUB_TOKEN?')
 
-config = {
-    'h': {
+req_conf = {
+    'headers': {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': 'token ' + token
     },
-    'p': {'per_page': 100},
-    'b': 'https://api.github.com'
+    'params': {'per_page': 100}
 }
+
+admin_exclusions = [
+    'mlavocat-aura', 'rtoohil', 'jbeas408', 'Aura-IT',
+    'auraShawn', 'mhelgeson', 'jeffisadams', 'peteigel',
+    'taryyorn', 'dpowell-aura', 'Parker-007', 'jr-tietsort',
+    'magicgrin'
+    ]
+
+orgs = [
+    'isubscribed', 'anchorfree', 'auracompany',
+    'anchorfreepartner', 'figleafteam'
+    ]
+
+base_url = 'https://api.github.com'
