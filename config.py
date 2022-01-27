@@ -20,9 +20,4 @@ admin_exclusions = [
     'magicgrin'
     ]
 
-orgs = [
-    'isubscribed', 'anchorfree', 'auracompany',
-    'anchorfreepartner', 'figleafteam'
-    ]
-
 base_url = 'https://api.github.com'

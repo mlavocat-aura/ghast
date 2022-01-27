@@ -21,7 +21,7 @@ Creates a CSV report of all repositories including their admins, CodeQL workflow
 
 Usage:
 
-``` python codeql-report.py ```
+``` python codeql-report.py --org isubscribed```
 
 ---
 

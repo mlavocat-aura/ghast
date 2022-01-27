@@ -8,27 +8,33 @@ import requests
 from ratelimit import limits, sleep_and_retry
 import config
 
+# Argparse Setup
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-o', '--org',
+    help='Target organization')
 
-@limits(calls=10, period=timedelta(seconds=60).total_seconds())
-def get_repositories(_session):
+
+@limits(calls=60, period=timedelta(seconds=60).total_seconds())
+def get_repositories(_session, _org):
     '''
     Returns a list of dictionaries
     '''
     _repos = []
-    for org in config.orgs:
-        path = f'/orgs/{org}/repos'
-        as_repos_url = f'{config.base_url}{path}'
-        # Get initial response
-        response = _session.get(as_repos_url)
+    path = f'/orgs/{_org}/repos'
+    as_repos_url = f'{config.base_url}{path}'
+    # Get initial response
+    response = _session.get(as_repos_url)
+    _repos.extend(response.json())
+    # Retrieve the next page until we run of out 'next' keys
+    while 'next' in response.links.keys():
+        response = _session.get(response.links['next']['url'])
         _repos.extend(response.json())
-        # Retrieve the next page until we run of out 'next' keys
-        while 'next' in response.links.keys():
-            response = _session.get(response.links['next']['url'])
-            _repos.extend(response.json())
     return _repos
 
 
-@limits(calls=10, period=timedelta(seconds=60).total_seconds())
+@limits(calls=50, period=timedelta(seconds=60).total_seconds())
 def get_admins(_session, _full_name):
     ''' Return list of admins for a repository '''
     # /repos/{owner}/{repo}/collaborators
@@ -63,7 +69,7 @@ def get_secrets(_session, _full_name):
 
 
 @sleep_and_retry
-@limits(calls=10, period=timedelta(seconds=60).total_seconds())
+@limits(calls=30, period=timedelta(seconds=60).total_seconds())
 def get_workflows(_session, _full_name):
     '''
     Check for CodeQL workflow
@@ -89,8 +95,7 @@ def parse_repositories(_session, _repos):
         organization, name = full_name.split('/')
         workflow_status = get_workflows(_session, full_name)
         # Temporarily disabling admins
-        # admins = get_admins(_headers, full_name)
-        admins = []
+        admins = get_admins(_session, full_name)
         secrets = get_secrets(_session, full_name)
         secrets = 0
         data = {
@@ -104,14 +109,15 @@ def parse_repositories(_session, _repos):
     return _parsed
 
 
-def write_csv(_parsed):
+def write_csv(_parsed, _org):
     ''' Write results from parsed respositories to CSV file '''
     columns = ['Name', 'Organization', 'Admins', 'Status', 'Secrets']
-    with open('codeql.csv', 'w', newline='') as outfile:
+    with open(f'{_org}.csv', 'w', newline='') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=columns)
         writer.writeheader()
         for key in _parsed:
             writer.writerow(key)
+    print(f'Saved results to: {_org}.csv')
 
 
 def describe_rate_limit(_session):
@@ -128,11 +134,12 @@ def describe_rate_limit(_session):
 
 if __name__ == '__main__':
     ''' Entrypoint '''
+    args = parser.parse_args()
     session = requests.Session()
     session.headers.update(config.req_conf['headers'])
     session.params.update(config.req_conf['params'])
     describe_rate_limit(session)
-    repos = get_repositories(session)
+    repos = get_repositories(session, args.org)
     parsed = parse_repositories(session, repos)
-    write_csv(parsed)
+    write_csv(parsed, args.org)
     describe_rate_limit(session)
