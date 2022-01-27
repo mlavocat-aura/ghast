@@ -52,7 +52,7 @@ def get_admins(_session, _full_name):
 
 
 @sleep_and_retry
-@limits(calls=60, period=timedelta(seconds=60).total_seconds())
+@limits(calls=10, period=timedelta(seconds=60).total_seconds())
 def get_secrets(_session, _full_name):
     ''' Return count of secrets from given repository '''
     as_secrets_url = f'{config.base_url}/repos/{_full_name}/secret-scanning/alerts'
@@ -63,12 +63,11 @@ def get_secrets(_session, _full_name):
 
 
 @sleep_and_retry
-@limits(calls=60, period=timedelta(seconds=60).total_seconds())
+@limits(calls=10, period=timedelta(seconds=60).total_seconds())
 def get_workflows(_session, _full_name):
     '''
     Check for CodeQL workflow
     '''
-    print(f'Getting workflows for {_full_name}')
     regex = re.compile('codeql')
     as_workflow_url = f'{config.base_url}/repos/{_full_name}/actions/workflows'
     response = _session.get(as_workflow_url)
