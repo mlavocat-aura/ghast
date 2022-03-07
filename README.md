@@ -1,5 +1,11 @@
 # GHAST - GitHub Advanced Security Tools
 
+## Prerequisits
+
+GitHub developer token with appropriate permissions (mostly READ on repositories)
+
+``` export GITHUB_TOKEN='{personal access token}' ```
+
 ## Setup
 
 Create virtualenv
@@ -16,12 +22,19 @@ Install dependencies
 
 
 ---
-### codeql-report
-Creates a CSV report of all repositories including their admins, CodeQL workflow status, and secret count.
+### codeql-usage
+Creates a CSV report of all repositories including their admins, CodeQL workflow status, and secret count.  This requires a ton of API calls to gather everything, so anything not explicitly needed should be commented out.
 
 Usage:
 
 ``` python codeql-report.py --org isubscribed```
+
+---
+
+### codeql-alerts
+Generates an XLSX file containing code-scanning alerts for all orgs.  
+
+``` python codeql-alerts.py ```
 
 ---
 
