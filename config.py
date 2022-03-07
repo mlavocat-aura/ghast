@@ -21,3 +21,8 @@ admin_exclusions = [
     ]
 
 base_url = 'https://api.github.com'
+
+orgs = [
+    'auracompany', 'isubscribed', 'anchorfree',
+    'anchorfreepartner', 'figleafteam', 'meetcircle'
+    ]

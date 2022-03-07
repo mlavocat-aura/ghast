@@ -35,9 +35,10 @@ def parse_alerts(_alerts):
     alert_list = []
     for alert in _alerts:
         rules = alert.get('rule')
+        state = alert.get('state')
         severity = rules.get('severity')
         skip = ['note']
-        if severity not in skip:
+        if severity not in skip and state == 'open':
             repo = alert.get('repository')
             created = alert.get('created_at')
             created_ts = datetime.datetime.strptime(
@@ -66,15 +67,21 @@ def parse_alerts(_alerts):
 def write_xlsx(_parsed, _org):
     ''' Create dataframe from list of dicts and write to xlsx'''
     _df = pd.DataFrame.from_dict(_parsed)
+    _df.set_index('repository', inplace=True)
     _df.to_excel(f'codescanning-{_org}.xlsx')
 
 
 if __name__ == '__main__':
     ''' Entrypoint '''
-    args = parser.parse_args()
+    # args = parser.parse_args()
     session = requests.Session()
     session.headers.update(config.req_conf['headers'])
     session.params.update(config.req_conf['params'])
-    alerts = describe_alerts(session, args.org)
-    parsed = parse_alerts(alerts)
-    write_xlsx(parsed, args.org)
+    for org in config.orgs:
+        try:
+            alerts = describe_alerts(session, org)
+            parsed = parse_alerts(alerts)
+            write_xlsx(parsed, org)
+        except KeyError:
+            # Response is completely empty when an org has no results.
+            pass
