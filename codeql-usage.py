@@ -16,7 +16,7 @@ parser.add_argument(
     help='Target organization')
 
 
-@limits(calls=60, period=timedelta(seconds=60).total_seconds())
+@limits(calls=40, period=timedelta(seconds=60).total_seconds())
 def get_repositories(_session, _org):
     '''
     Returns a list of dictionaries
@@ -34,7 +34,7 @@ def get_repositories(_session, _org):
     return _repos
 
 
-@limits(calls=50, period=timedelta(seconds=60).total_seconds())
+@limits(calls=30, period=timedelta(seconds=60).total_seconds())
 def get_admins(_session, _full_name):
     ''' Return list of admins for a repository '''
     # /repos/{owner}/{repo}/collaborators
@@ -69,7 +69,7 @@ def get_secrets(_session, _full_name):
 
 
 @sleep_and_retry
-@limits(calls=30, period=timedelta(seconds=60).total_seconds())
+@limits(calls=10, period=timedelta(seconds=60).total_seconds())
 def get_workflows(_session, _full_name):
     '''
     Check for CodeQL workflow

@@ -10,7 +10,7 @@ req_conf = {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': 'token ' + token
     },
-    'params': {'per_page': 100}
+    'params': {'per_page': 50}
 }
 
 admin_exclusions = [
