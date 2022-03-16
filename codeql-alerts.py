@@ -68,12 +68,12 @@ def write_xlsx(_parsed, _org):
     ''' Create dataframe from list of dicts and write to xlsx'''
     _df = pd.DataFrame.from_dict(_parsed)
     _df.set_index('repository', inplace=True)
-    _df.to_excel(f'codescanning-{_org}.xlsx')
+    _df.to_excel(f'secrets/codescanning-{_org}.xlsx')
 
 
 if __name__ == '__main__':
     ''' Entrypoint '''
-    # args = parser.parse_args()
+    args = parser.parse_args()
     session = requests.Session()
     session.headers.update(config.req_conf['headers'])
     session.params.update(config.req_conf['params'])
