@@ -30,7 +30,14 @@ Usage:
 ``` python codeql-report.py --org isubscribed```
 
 ---
+### secret-scanning
+Creates a XLSX report of all secret alerts currently active for the target org.
 
+Usage:
+
+``` python secret-scanning.py --org isubscribed ```
+
+---
 ### codeql-alerts
 Generates an XLSX file containing code-scanning alerts for all orgs.  
 
