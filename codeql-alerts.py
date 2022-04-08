@@ -60,15 +60,18 @@ def parse_alerts(_alerts):
                 'timedelta': str(timedelta),
                 'url': url
             }
+            pp.pprint(alert_dict)
             alert_list.append(alert_dict)
     return alert_list
 
 
 def write_xlsx(_parsed, _org):
+    print(f'trying to write file for {_org}')
+    today = datetime.date.today()
     ''' Create dataframe from list of dicts and write to xlsx'''
     _df = pd.DataFrame.from_dict(_parsed)
     _df.set_index('repository', inplace=True)
-    _df.to_excel(f'secrets/codescanning-{_org}.xlsx')
+    _df.to_excel(f'reports/codeql-{_org}-{today}.xlsx')
 
 
 if __name__ == '__main__':

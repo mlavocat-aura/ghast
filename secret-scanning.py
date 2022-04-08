@@ -52,9 +52,11 @@ def parse_alerts(_alerts):
 
 def write_xlsx(_parsed, _org):
     ''' Create dataframe from list of dicts and write to xlsx'''
+    today = datetime.date.today()
     _df = pd.DataFrame.from_dict(_parsed)
     _df.set_index('name', inplace=True)
-    _df.to_excel(f'secrets-{_org}.xlsx')
+    # _df.to_excel(f'secrets-{_org}-{today}.xlsx')
+    _df.to_excel(f'reports/secrets-{_org}-{today}.xlsx')
 
 
 if __name__ == '__main__':

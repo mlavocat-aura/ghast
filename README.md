@@ -44,6 +44,13 @@ Generates an XLSX file containing code-scanning alerts for all orgs.
 ``` python codeql-alerts.py ```
 
 ---
+### branches
+Generates a XLSX report outlining branch protection settings for default branch
+
+``` python branches.py --org isubscribed ```
+
+
+---
 
 ### circle-users
 Prints a list of all users for an organization, in this case meetcircle.  Change the path variable to query a different org.
