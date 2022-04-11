@@ -63,8 +63,8 @@ if __name__ == '__main__':
     ''' Entrypoint '''
     args = parser.parse_args()
     session = requests.Session()
-    session.headers.update(config.req_conf['headers'])
-    session.params.update(config.req_conf['params'])
+    session.headers.update(config.rest_headers['headers'])
+    session.params.update(config.rest_headers['params'])
     alerts = describe_alerts(session, args.org)
     parsed = parse_alerts(alerts)
     write_xlsx(parsed, args.org)

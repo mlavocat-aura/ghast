@@ -8,10 +8,10 @@ import config
 
 
 # Argparse Setup
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    '-o', '--org',
-    help='Target organization')
+# parser = argparse.ArgumentParser()
+# parser.add_argument(
+#     '-o', '--org',
+#     help='Target organization')
 
 
 def describe_alerts(_session, _org):
@@ -29,7 +29,6 @@ def describe_alerts(_session, _org):
 
 def parse_alerts(_alerts):
     ''' Parse the full response down to values that we need '''
-    now = datetime.datetime.now()
     # GH format 2021-11-30T17:18:24Z
     now = datetime.datetime.now(datetime.timezone.utc)
     alert_list = []
@@ -76,10 +75,10 @@ def write_xlsx(_parsed, _org):
 
 if __name__ == '__main__':
     ''' Entrypoint '''
-    args = parser.parse_args()
+    # args = parser.parse_args()
     session = requests.Session()
-    session.headers.update(config.req_conf['headers'])
-    session.params.update(config.req_conf['params'])
+    session.headers.update(config.rest_headers['headers'])
+    session.params.update(config.rest_headers['params'])
     for org in config.orgs:
         try:
             alerts = describe_alerts(session, org)

@@ -117,3 +117,6 @@ if __name__ == '__main__':
     repos = get_branch_protection(session, repos)
     parsed = parse_repositories(repos)
     write_xlsx(parsed, args.org)
+
+
+#TODO: Filter out archived repositories, they're read-only by nature of being archived.
