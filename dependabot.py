@@ -4,9 +4,11 @@ import pprint as pp
 import requests
 import json
 import config
+import shared
 import pandas as pd
 import argparse
 import datetime
+import time
 
 # Argparse Setup
 parser = argparse.ArgumentParser()
@@ -32,40 +34,47 @@ def run_query(_org, _cursor=None):
         raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, config.query)) 
 
 
-def write_xlsx(_results, _org):
-    ''' Write data to excel spreadsheet '''
-    today = datetime.date.today()
-    _df = pd.DataFrame.from_dict(_results)
-    _df.set_index('name', inplace=True)
-    _df.to_excel(f'reports/dependabot-{_org}-{today}.xlsx')
-
-
 def parse_results(_results):
     parsed = []
-    now = datetime.datetime.now(datetime.timezone.utc)
+    # now = datetime.datetime.now(datetime.timezone.utc)
     for result in _results:
-        name = result.get('nameWithOwner')
+        organization, name = result.get('nameWithOwner').split('/')
         alerts = result['vulnerabilityAlerts']['nodes']
         if len(alerts) > 0:
             for alert in alerts:
+                number = alert.get('number')
                 state = alert.get('state')
-                if state == 'OPEN':
-                    created = alert.get('createdAt')
-                    created_ts = datetime.datetime.strptime(
-                        created,
-                        '%Y-%m-%dT%H:%M:%S%z'
-                        )
-                    timedelta = now - created_ts
-                    _details = {
-                        'name': name,
-                        'created_at': alert.get('createdAt'),
-                        'time_open': timedelta,
-                        'state': alert.get('state'),
-                        'package': alert['securityVulnerability']['package']['name'],
-                        'severity': alert['securityAdvisory']['severity']
-                    }
-                    parsed.append(_details)
+                created = alert.get('createdAt')
+                created_ts = datetime.datetime.strptime(
+                    created,
+                    '%Y-%m-%dT%H:%M:%S%z'
+                    )
+                _details = {
+                    'id': f'{name}:{number}',
+                    'organization': organization,
+                    'state': state,
+                    'package': alert['securityVulnerability']['package']['name'],
+                    'severity': alert['securityAdvisory']['severity'],
+                    'created': created_ts.date(),
+                    'updated': time.time()
+                }
+                parsed.append(_details)
     return parsed
+
+
+def insert_records(_parsed):
+    cnx = shared.connect_to_rds()
+    cursor = cnx.cursor(prepared=True)
+    query = ('INSERT INTO ghast.gh_dependabot \
+        (id, organization, state, package, severity, created, updated) \
+        VALUES (%s, %s, %s, %s, %s, %s, %s) \
+        ON DUPLICATE KEY UPDATE \
+            state = VALUES(state), \
+            updated = VALUES(updated)'
+    )
+    for record in _parsed:
+        cursor.execute(query, tuple(record.values()))
+    cnx.commit()
 
 
 def main():
@@ -80,7 +89,7 @@ def main():
         has_next_page = resp['data']['organization']['repositories']['pageInfo']['hasNextPage']
         results = results + resp['data']['organization']['repositories']['nodes']
     parsed = parse_results(results)
-    write_xlsx(parsed, args.org)
+    insert_records(parsed)
 
 
 if __name__ == '__main__':
