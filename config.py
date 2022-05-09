@@ -42,9 +42,10 @@ query($organization:String!, $previousEndCursor:String)
       }
       nodes {
         nameWithOwner
-        vulnerabilityAlerts(first: 10) {
+        vulnerabilityAlerts(last: 100) {
           nodes {
             state
+            number
             createdAt
             securityVulnerability {
               package {
